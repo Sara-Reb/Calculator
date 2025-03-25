@@ -18,7 +18,7 @@ const num1 = null;
 const num2 = null;
 const op = null;
 
-function operation(num1, num2, op) {
+function operate(num1, num2, op) {
   if (op === "+") {
     return add(num1, num2);
   } else if (op === "-") {
