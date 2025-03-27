@@ -11,11 +11,11 @@ body {
 }
 
 .calculator {
-  background-color: #ccb0d1;
+  background-color: #c5adc9;
   width: 500px;
   height: 700px;
   margin: 0 auto;
-  border-radius: 16px;
+  border-radius: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -31,8 +31,18 @@ body {
   width: 424px;
   border-radius: 8px;
   padding: 8px;
-  text-align: end;
   box-shadow: 2px 2px 5px 1px inset;
+}
+
+.result-screen p {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  text-align: end;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  scrollbar-color: #817d7d #a8a8a8;
 }
 
 .buttons {

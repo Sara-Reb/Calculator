@@ -29,3 +29,20 @@ function operate(num1, num2, op) {
     return divide(num1, num2);
   }
 }
+
+const result = document.querySelector(".result-screen p");
+const buttons = document.querySelectorAll("button");
+const buttonsContainer = document.querySelector(".buttons");
+
+buttonsContainer.addEventListener("click", (e) => {
+  if (e.target.id === "clear") {
+    result.textContent = "";
+  } else if (e.target.textContent === "<=") {
+    result.textContent = result.textContent.slice(0, -1);
+  } else if (e.target.textContent != "=") {
+    result.textContent += e.target.textContent;
+    result.scrollLeft += 100;
+  }
+});
+
+// Check if expression is valid
