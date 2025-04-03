@@ -19,9 +19,9 @@ function operate(num1, num2, op) {
     return add(num1, num2);
   } else if (op === "-") {
     return subtract(num1, num2);
-  } else if (op === "x") {
+  } else if (op === "x" || op === "*") {
     return multiply(num1, num2);
-  } else if (op === "÷") {
+  } else if (op === "÷" || op === "/") {
     return divide(num1, num2);
   }
 }
@@ -38,91 +38,128 @@ let op = null;
 let currNum = null;
 
 buttonsContainer.addEventListener("click", (e) => {
-  if (input.textContent === "dummy") {
-    input.textContent = "";
-  } else if (e.target.childNodes.length != 1) {
+  // Prevent drag event
+  if (e.target.childNodes.length != 1) {
     return;
   }
-  // Clear all
-  else if (e.target.textContent === "CLEAR") {
+  // Prevent click event when not triggered by the mouse
+  else if (e.pointerType === "") {
+    return;
+  }
+
+  let digit = e.target.textContent;
+  main(digit);
+});
+
+document.addEventListener("keydown", (e) => {
+  if (
+    /['0-9'\+\-\*\/\=\.]/.test(e.key) ||
+    ["Enter", "Backspace"].includes(e.key)
+  ) {
+    let digit = e.key;
+    if (digit === "/") {
+      digit = "÷";
+    } else if (digit === "*") {
+      digit = "x";
+    }
+    main(digit);
+  }
+});
+
+function main(digit) {
+  if (input.textContent === "dummy") {
     input.textContent = "";
-    result.textContent = "";
-    currNum = null;
-    num1 = null;
-    num2 = null;
-    op = null;
+  }
+  // Clear all
+  else if (digit === "CLEAR") {
+    clearScreen();
   }
 
   // Delete last digit
-  else if (e.target.textContent === "<--") {
-    if (
-      ["÷", "x", "+", "-"].some((item) => item === input.textContent.slice(-1))
-    ) {
-      op = null;
-      currNum = num1;
-    } else {
-      currNum = String(currNum).slice(0, -1);
-    }
-    input.textContent = input.textContent.slice(0, -1);
-    console.log(currNum);
+  else if (digit === "<--" || digit === "Backspace") {
+    deleteLastDigit();
   }
 
   // Add operators and save first number
-  else if (e.target.classList.contains("op")) {
-    if (op === null && input.textContent != "") {
-      op = e.target.textContent;
-      num1 = Number(input.textContent);
-      currNum = null;
-      input.textContent += e.target.textContent;
-    } else if (op != null) {
-      num2 = Number(currNum);
-      if (op === "÷" && num2 === 0) {
-        answer = "dummy";
-        result.textContent = "";
-        input.textContent = answer;
+  else if (["+", "-", "*", "x", "/", "÷"].includes(digit)) {
+    if (op === null) {
+      if (input.textContent === "") {
         return;
-      } else {
-        let answer = parseFloat(operate(num1, num2, op).toPrecision(8));
-        result.textContent = input.textContent;
-        input.textContent = parseFloat(answer.toPrecision(12));
       }
-      eFloat(answer.toPrecision(12));
+      num1 = Number(input.textContent);
+    } else {
+      if (currNum === null) {
+        return;
+      }
+      answer = calculateResult();
       num1 = answer;
-      currNum = null;
       num2 = null;
-      op = e.target.textContent;
-      input.textContent += e.target.textContent;
     }
+    currNum = null;
+    op = digit;
+    input.textContent += op;
   }
 
   // Add numeric digits
-  else if (e.target.id != "equal") {
+  else if (digit != "=" && digit != "Enter") {
     if (currNum === null) {
-      currNum = e.target.textContent;
-      input.textContent += e.target.textContent;
+      currNum = digit;
+      input.textContent += digit;
     }
     //Check if valid number
-    else if (!isNaN(Number(currNum + e.target.textContent))) {
-      currNum += e.target.textContent;
-      input.textContent += e.target.textContent;
+    else if (!isNaN(Number(currNum + digit))) {
+      currNum += digit;
+      input.textContent += digit;
     }
-  } else {
-    if (currNum === null) {
-      return;
-    }
-    num2 = Number(currNum);
-    if (op === "÷" && num2 === 0) {
-      answer = "dummy";
-      result.textContent = "";
-      input.textContent = answer;
-    } else {
-      let answer = parseFloat(operate(num1, num2, op).toPrecision(8));
-      result.textContent = input.textContent;
-      input.textContent = parseFloat(answer.toPrecision(8));
-    }
-    currNum = null;
-    op = null;
   }
 
-  console.log("curr", currNum, "num1", num1, "num2", num2, "op", op);
-});
+  // = is clicked
+  else {
+    if (currNum === null || op === null) {
+      return;
+    }
+    answer = calculateResult();
+    num1 = answer;
+    num2 = null;
+    currNum = num1;
+    op = null;
+  }
+}
+
+function clearScreen() {
+  input.textContent = "";
+  result.textContent = "";
+  currNum = null;
+  num1 = null;
+  num2 = null;
+  op = null;
+}
+
+function deleteLastDigit() {
+  if (
+    ["÷", "x", "+", "-"].some((item) => item === input.textContent.slice(-1))
+  ) {
+    op = null;
+    currNum = num1;
+    num1 = null;
+  } else {
+    currNum = String(currNum).slice(0, -1);
+  }
+  input.textContent = input.textContent.slice(0, -1);
+}
+
+function calculateResult() {
+  num2 = Number(currNum);
+  let answer;
+  if (op === "÷" && num2 === 0) {
+    answer = "dummy";
+    result.textContent = "";
+    input.textContent = answer;
+    num1 = num2 = currNum = op = null;
+  } else {
+    answer = parseFloat(operate(num1, num2, op).toPrecision(8));
+    result.textContent = input.textContent;
+    input.textContent = parseFloat(answer.toPrecision(8));
+  }
+  return answer;
+}
