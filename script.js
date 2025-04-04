@@ -83,7 +83,7 @@ function main(digit) {
   // Add operators and save first number
   else if (["+", "-", "*", "x", "/", "÷"].includes(digit)) {
     if (op === null) {
-      if (input.textContent === "") {
+      if (input.textContent === "" || isNaN(Number(input.textContent))) {
         return;
       }
       num1 = Number(input.textContent);
@@ -149,9 +149,12 @@ function deleteLastDigit() {
 }
 
 function calculateResult() {
+  if (isNaN(currNum)) {
+    return;
+  }
   num2 = Number(currNum);
   let answer;
-  if (op === "÷" && num2 === 0) {
+  if ((op === "÷" || op === "/") && num2 === 0) {
     answer = "dummy";
     result.textContent = "";
     input.textContent = answer;
